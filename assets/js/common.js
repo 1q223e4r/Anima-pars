@@ -239,6 +239,15 @@
         <pattern id="ap-grain" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
           <rect width="1.4" height="5" fill="#FFFFFF" fill-opacity="0.08"/>
         </pattern>
+        <!-- 자수 실결(새틴 스티치): 글자와 별의 결 방향을 엇갈리게 -->
+        <pattern id="ap-satin" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(-40)">
+          <rect width="1.3" height="3.2" fill="#FFFFFF" fill-opacity="0.2"/>
+          <rect x="2.2" width="0.5" height="3.2" fill="#000000" fill-opacity="0.14"/>
+        </pattern>
+        <pattern id="ap-satin-cross" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <rect width="1.3" height="3.2" fill="#FFFFFF" fill-opacity="0.2"/>
+          <rect x="2.2" width="0.5" height="3.2" fill="#000000" fill-opacity="0.14"/>
+        </pattern>
       </defs>
     </svg>`;
 
@@ -254,9 +263,58 @@
     return Math.round(value * factor) / factor;
   }
 
+  /* ---------- 옷에 넣는 '별 달린 A' 자수 ---------- */
+
+  // 글자 로고의 첫 글자 A와 별을 그대로 옮긴 모양 (index.html #logo-mark, brand/star-a.svg와 같음)
+  const STAR_A = {
+    letter: 'M3.5 50 L18.5 18 L26.5 18 L41.5 50 L33.9 50 L29.7 41 L15.3 41 L11.1 50 Z M0 45.5 H14.6 V50 H0 Z M30.4 45.5 H45 V50 H30.4 Z M22.5 25.7 L18.1 35 L26.9 35 Z',
+    star: 'M22.5 4.5 Q24.8 12.7 33 15 Q24.8 17.3 22.5 25.5 Q20.2 17.3 12 15 Q20.2 12.7 22.5 4.5 Z',
+    centerX: 22.5,     // 모양이 차지하는 범위: 가로 0~45, 세로 4.5~50
+    centerY: 27.25,
+    height: 45.5
+  };
+  // 실 색: 밝은 원단엔 에스프레소 A + 황토 별, 어두운 원단엔 크림 A + 밝은 황토 별 (brand/ 파일과 같은 조합)
+  const THREAD_ON_LIGHT = { letter: '#3B2A20', star: '#B07A2A' };
+  const THREAD_ON_DARK = { letter: '#F3EBDD', star: '#D3A24A' };
+  const PATCH_FILL = '#EFE6D6';       // 캡 앞판 패치(생지 캔버스)
+  const PATCH_STITCH = '#A88F68';
+
+  /**
+   * 별 달린 A 자수 SVG 조각 (옷 그림 좌표 200×240 기준)
+   * mark: { x, y(자수 가운데), size(높이), patch?: { x, y, width, height } }
+   */
+  function starAMarkSvg(mark, fabricHex) {
+    let patchSvg = '';
+    let groundHex = fabricHex;
+    if (mark.patch) {
+      const { x, y, width, height } = mark.patch;
+      const inset = 2.5;
+      patchSvg = `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="1.2" fill="${PATCH_FILL}" stroke="#141414" stroke-opacity="0.35" stroke-width="0.8"/>`
+        + `<rect x="${x + inset}" y="${y + inset}" width="${width - inset * 2}" height="${height - inset * 2}" fill="none" stroke="${PATCH_STITCH}" stroke-width="0.6" stroke-dasharray="1.6 1.2"/>`;
+      groundHex = PATCH_FILL;   // 패치 위에 놓이면 실 색은 패치 색 기준
+    }
+    const thread = isLightColor(groundHex) ? THREAD_ON_LIGHT : THREAD_ON_DARK;
+    const scale = roundTo(mark.size / STAR_A.height, 4);
+    const placement = `translate(${mark.x} ${mark.y}) scale(${scale}) translate(${-STAR_A.centerX} ${-STAR_A.centerY})`;
+
+    // 한 부분(A 또는 별)을 실로 놓은 모습: 그림자 → 실 색과 가장자리 → 실결
+    const embroider = (d, threadHex, satinId) => {
+      const edge = mixColor(threadHex, '#000000', 0.35);
+      return `<path d="${d}" fill="#000000" opacity="0.3" transform="translate(1.2 1.6)"/>`   // 실이 도톰하게 올라온 그림자
+        + `<path d="${d}" fill="${threadHex}" stroke="${edge}" stroke-opacity="0.5" stroke-width="0.9" stroke-linejoin="round"/>`
+        + `<path d="${d}" fill="url(#${satinId})"/>`;
+    };
+    // 별을 A 위에 나중에 놓아, 별이 A 위로 한 겹 더 올라온 것처럼 보이게 함
+    return `<g class="garment__mark">${patchSvg}<g transform="${placement}">`
+      + embroider(STAR_A.letter, thread.letter, 'ap-satin')
+      + embroider(STAR_A.star, thread.star, 'ap-satin-cross')
+      + '</g></g>';
+  }
+
   /**
    * 상품 일러스트 SVG 문자열을 만듦
-   * options: strokeWidth, outlineColor, outlineOpacity, label(있으면 스크린리더가 읽는 이미지)
+   * options: strokeWidth, outlineColor, outlineOpacity, label(있으면 스크린리더가 읽는 이미지),
+   *          mark(false면 별 달린 A 자수를 빼고 그림)
    */
   function garmentSvg(product, color, options = {}) {
     const shape = DATA.GARMENTS[product.garment];
@@ -273,6 +331,7 @@
       + `<path d="${shape.outline}" fill="${fill}" stroke="${outlineColor}" stroke-opacity="${outlineOpacity}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>`
       + `<path d="${shape.detail}" fill="none" stroke="${color.line}" stroke-width="${roundTo(strokeWidth * 0.9, 2)}" stroke-linejoin="round" stroke-linecap="round"/>`
       + `<path d="${shape.stitch}" fill="none" stroke="${color.stitch}" stroke-width="${roundTo(strokeWidth * 0.7, 2)}" stroke-dasharray="2.4 2" stroke-linecap="round"/>`
+      + (shape.mark && options.mark !== false ? starAMarkSvg(shape.mark, color.hex) : '')
       + '</svg>';
   }
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 배포한 뒤 YOUR-SITE.vercel.app 을 실제 주소로 모두 바꾸세요. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://YOUR-SITE.vercel.app/</loc></url>
+  <url><loc>https://YOUR-SITE.vercel.app/shop.html</loc></url>
+  <url><loc>https://YOUR-SITE.vercel.app/product.html?id=AP-001</loc></url>
+  <url><loc>https://YOUR-SITE.vercel.app/product.html?id=AP-002</loc></url>
+  <url><loc>https://YOUR-SITE.vercel.app/product.html?id=AP-003</loc></url>
+  <url><loc>https://YOUR-SITE.vercel.app/product.html?id=AP-004</loc></url>
+  <url><loc>https://YOUR-SITE.vercel.app/product.html?id=AP-005</loc></url>
+  <url><loc>https://YOUR-SITE.vercel.app/product.html?id=AP-006</loc></url>
+  <url><loc>https://YOUR-SITE.vercel.app/product.html?id=AP-007</loc></url>
+  <url><loc>https://YOUR-SITE.vercel.app/product.html?id=AP-008</loc></url>
+</urlset>

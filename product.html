@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>상품 — ANIMA PARS</title>
+  <meta name="description" content="ANIMA PARS 상품 상세 정보">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ANIMA PARS">
+  <meta property="og:title" content="ANIMA PARS">
+  <meta property="og:locale" content="ko_KR">
+  <meta name="theme-color" content="#fbfaf8">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&amp;family=Noto+Sans+KR:wght@300;400;500&amp;family=Noto+Serif+KR:wght@300;400&amp;display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/common.js" defer></script>
+  <script src="assets/js/product.js" defer></script>
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <symbol id="logo-mark" viewBox="-2 3 347 48">
+      <path fill="currentColor" fill-rule="evenodd" d="M0 50 L15 18 L23 18 L38 50 L30.4 50 L26.2 41 L11.8 41 L7.6 50 Z M19 25.7 L23.4 35 L14.6 35 Z M42 50 L42 18 L50.5 18 L67 40.5 L67 18 L74 18 L74 50 L65.5 50 L49 27.5 L49 50 Z M83 18 L90 18 L90 50 L83 50 Z M99 50 L99 18 L107 18 L121 42.9 L135 18 L143 18 L143 50 L136 50 L136 30.4 L125 50 L117 50 L106 30.4 L106 50 Z M147 50 L162 18 L170 18 L185 50 L177.4 50 L173.2 41 L158.8 41 L154.6 50 Z M166 25.7 L170.4 35 L161.6 35 Z M205 50 L205 18 L228 18 L235 25 L235 30 L228 37 L212 37 L212 50 Z M212 24 L225 24 L228 27 L228 28 L225 31 L212 31 Z M232 50 L247 18 L255 18 L270 50 L262.4 50 L258.2 41 L243.8 41 L239.6 50 Z M251 25.7 L255.4 35 L246.6 35 Z M274 50 L274 18 L297 18 L304 25 L304 30 L297 37 L306 50 L297.5 50 L288.5 37 L281 37 L281 50 Z M281 24 L294 24 L297 27 L297 28 L294 31 L281 31 Z M343 18 L343 24 L323 24 L320 27 L320 28 L323 31 L336 31 L343 38 L343 43 L336 50 L313 50 L313 44 L333 44 L336 41 L336 40 L333 37 L320 37 L313 30 L313 25 L320 18 Z"/>
+      <path fill="currentColor" d="M19 4.5 Q21.3 12.7 29.5 15 Q21.3 17.3 19 25.5 Q16.7 17.3 8.5 15 Q16.7 12.7 19 4.5 Z"/>
+    </symbol>
+  </svg>
+
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <p class="notice-bar">포트폴리오용 가상 브랜드 사이트예요 · 실제 주문과 결제는 되지 않아요</p>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <div class="site-header__start">
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="메뉴" data-menu-toggle>
+          <svg class="icon icon-menu" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 8.5 H21 M3 15.5 H21"/></svg>
+          <svg class="icon icon-close" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5.5 5.5 L18.5 18.5 M18.5 5.5 L5.5 18.5"/></svg>
+          <span class="menu-toggle__label" aria-hidden="true" data-menu-label>MENU</span>
+        </button>
+      </div>
+      <a class="brand-logo" href="index.html" aria-label="ANIMA PARS 홈">
+        <svg class="logo" viewBox="-2 3 347 48" aria-hidden="true" focusable="false"><use href="#logo-mark"/></svg>
+      </a>
+      <div class="site-header__end">
+        <button class="icon-button" type="button" aria-expanded="false" aria-controls="site-search" aria-label="검색" data-search-toggle>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="M16 16 L20.5 20.5"/></svg>
+        </button>
+        <a class="cart-link" href="cart.html" aria-label="장바구니" data-cart-link>
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 8.5 H19 L18 20.5 H6 Z"/><path d="M9 8.5 V7 A3 3 0 0 1 15 7 V8.5"/></svg>
+          <span class="cart-link__count" aria-hidden="true" data-cart-count hidden>0</span>
+        </a>
+      </div>
+    </div>
+    <div class="site-search" id="site-search" hidden>
+      <form class="site-search__form" action="shop.html" method="get" role="search">
+        <label class="sr-only" for="search-input">상품 검색</label>
+        <input class="site-search__input" id="search-input" name="q" type="search" maxlength="40" placeholder="상품 이름으로 검색" autocomplete="off">
+        <button class="button button--compact" type="submit">검색</button>
+      </form>
+    </div>
+    <nav class="site-menu" id="site-menu" aria-label="전체 메뉴" hidden>
+      <div class="site-menu__inner">
+        <div class="menu-group">
+          <p class="menu-group__title" lang="en">SHOP</p>
+          <a href="shop.html">전체 상품</a>
+          <a href="shop.html?cat=outer">아우터</a>
+          <a href="shop.html?cat=denim">데님</a>
+          <a href="shop.html?cat=shirt">셔츠</a>
+          <a href="shop.html?cat=sweat">스웨트</a>
+          <a href="shop.html?cat=tee">티셔츠</a>
+          <a href="shop.html?cat=acc">액세서리</a>
+        </div>
+        <div class="menu-group">
+          <p class="menu-group__title" lang="en">ANIMA PARS</p>
+          <a href="index.html#journal">에이징 저널</a>
+          <a href="index.html#about">브랜드 이야기</a>
+          <a href="cart.html">장바구니</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <div class="container">
+      <nav class="breadcrumb breadcrumb--product" aria-label="현재 위치">
+        <ol>
+          <li><a href="index.html">홈</a></li>
+          <li><a href="shop.html">컬렉션</a></li>
+          <li aria-current="page" data-crumb-name>상품</li>
+        </ol>
+      </nav>
+    </div>
+
+    <div data-product-root>
+      <section class="product container" aria-labelledby="pd-title">
+        <div class="product__gallery">
+          <figure class="product__figure product__figure--main">
+            <div class="product__art" data-pd-front></div>
+            <figcaption lang="en">FRONT</figcaption>
+          </figure>
+          <div class="product__figure-row">
+            <figure class="product__figure product__figure--square">
+              <div class="product__fabric" data-pd-fabric></div>
+              <figcaption class="fabric-caption" lang="en" data-pd-fabric-caption></figcaption>
+            </figure>
+            <figure class="product__figure product__figure--square product__figure--label">
+              <div class="woven-label" aria-hidden="true">
+                <svg class="logo" viewBox="-2 3 347 48" focusable="false"><use href="#logo-mark"/></svg>
+                <span class="woven-label__line" lang="en">SEOUL · EST. 2026</span>
+              </div>
+              <figcaption lang="en">WOVEN LABEL</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="product__info">
+          <div class="product__heading">
+            <p class="eyebrow" data-pd-meta></p>
+            <h1 class="product__title" id="pd-title" data-pd-name></h1>
+            <p class="product__title-en" lang="en" data-pd-name-en></p>
+            <p class="product__price" data-pd-price></p>
+          </div>
+
+          <fieldset class="option-group">
+            <legend>색상 <span data-pd-color-name></span></legend>
+            <div class="swatch-list" data-pd-colors></div>
+          </fieldset>
+
+          <fieldset class="option-group">
+            <legend>사이즈</legend>
+            <div class="size-list" data-pd-sizes></div>
+            <div class="option-note">
+              <span data-pd-size-note></span>
+              <a href="#size-guide" data-pd-size-guide-link>사이즈 가이드</a>
+            </div>
+          </fieldset>
+
+          <div class="product__actions">
+            <button class="button button--block" type="button" data-add-to-cart>장바구니에 담기</button>
+            <p class="form-message form-message--error" role="alert" data-pd-error hidden></p>
+            <div class="added-message" role="status" data-pd-added hidden>
+              <span data-pd-added-text></span>
+              <a href="cart.html">장바구니 보기</a>
+            </div>
+          </div>
+
+          <div class="accordion">
+            <details open>
+              <summary>
+                상품 설명
+                <svg class="icon icon--small" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4 V20 M4 12 H20"/></svg>
+              </summary>
+              <p class="accordion__body" data-pd-description></p>
+            </details>
+            <details>
+              <summary>
+                소재와 관리
+                <svg class="icon icon--small" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4 V20 M4 12 H20"/></svg>
+              </summary>
+              <dl class="spec-list" data-pd-specs></dl>
+            </details>
+            <details>
+              <summary>
+                배송과 반품
+                <svg class="icon icon--small" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4 V20 M4 12 H20"/></svg>
+              </summary>
+              <p class="accordion__body">10만 원 이상 구매하면 무료로 배송해요. 교환·반품은 받은 날로부터 7일 안에 신청할 수 있어요. (포트폴리오용 데모 사이트라 실제 배송은 없어요.)</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="product-extra" aria-label="사이즈와 에이징 정보">
+        <div class="product-extra__inner container">
+          <div class="size-guide" id="size-guide" data-pd-size-guide>
+            <h2 class="section-title section-title--md" lang="en">Size Guide</h2>
+            <div class="table-scroll">
+              <table class="size-table" data-pd-size-table></table>
+            </div>
+          </div>
+          <div class="aging">
+            <h2 class="section-title section-title--md" lang="en">How it Ages</h2>
+            <p class="aging__text" data-pd-aging-text></p>
+            <ol class="aging__steps">
+              <li class="aging__step">
+                <span class="aging__swatch" aria-hidden="true" data-pd-age></span>
+                <span class="aging__label" lang="en">NEW</span>
+                <span class="aging__note">처음 받은 날</span>
+              </li>
+              <li class="aging__step">
+                <span class="aging__swatch" aria-hidden="true" data-pd-age></span>
+                <span class="aging__label" lang="en">6 MONTHS</span>
+                <span class="aging__note">반년 동안 입은 색</span>
+              </li>
+              <li class="aging__step">
+                <span class="aging__swatch" aria-hidden="true" data-pd-age></span>
+                <span class="aging__label" lang="en">2 YEARS</span>
+                <span class="aging__note">2년 동안 입은 색</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="section container" aria-labelledby="related-title">
+        <div class="section-head">
+          <h2 class="section-title" id="related-title" lang="en">Complete the Look</h2>
+          <p class="section-subtitle">함께 입기 좋은 옷</p>
+        </div>
+        <ul class="product-grid" data-pd-related></ul>
+      </section>
+    </div>
+
+    <section class="not-found container" data-product-missing hidden>
+      <h1 class="page-title">상품을 찾을 수 없어요</h1>
+      <p>주소가 바뀌었거나 없는 상품이에요.</p>
+      <a class="button" href="shop.html">컬렉션 보기</a>
+    </section>
+
+    <noscript><p class="noscript-message">상품 정보를 보려면 자바스크립트를 켜 주세요.</p></noscript>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="site-footer__grid">
+        <div class="footer-brand">
+          <a class="footer-brand__logo" href="index.html" aria-label="ANIMA PARS 홈">
+            <svg class="logo" viewBox="-2 3 347 48" aria-hidden="true" focusable="false"><use href="#logo-mark"/></svg>
+          </a>
+          <p class="footer-motto" lang="en">Even on the day we face the end, let there be a thread of hope.</p>
+        </div>
+        <nav class="footer-group" aria-labelledby="footer-shop">
+          <h2 class="footer-group__title" id="footer-shop" lang="en">SHOP</h2>
+          <a href="shop.html">전체 상품</a>
+          <a href="shop.html?cat=outer">아우터</a>
+          <a href="shop.html?cat=denim">데님</a>
+          <a href="shop.html?cat=acc">액세서리</a>
+        </nav>
+        <nav class="footer-group" aria-labelledby="footer-brand">
+          <h2 class="footer-group__title" id="footer-brand" lang="en">ANIMA PARS</h2>
+          <a href="index.html#journal">에이징 저널</a>
+          <a href="index.html#about">브랜드 이야기</a>
+          <a href="cart.html">장바구니</a>
+        </nav>
+      </div>
+      <div class="site-footer__bottom">
+        <span>© 2026 ANIMA PARS</span>
+        <span>포트폴리오용 가상 브랜드입니다. 실제로 판매하지 않아요.</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

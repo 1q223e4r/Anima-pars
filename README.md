@@ -13,9 +13,13 @@ anima-pars/
 ├─ cart.html         장바구니
 ├─ robots.txt        검색엔진 안내 파일
 ├─ sitemap.xml       검색엔진에 제출할 페이지 목록
+├─ brand/            옷 마킹용 '별 달린 A' 로고 (원단 색별 4가지, SVG·PNG)
 └─ assets/
    ├─ css/style.css  모든 페이지의 디자인
-   ├─ img/favicon.svg 브라우저 탭 아이콘
+   ├─ img/
+   │  ├─ favicon.svg   브라우저 탭 아이콘
+   │  ├─ star-mark.svg 별 심볼 (헤더·푸터의 글자 로고 옆)
+   │  └─ emblem.svg    엠블럼 (모든 페이지 맨 아래)
    └─ js/
       ├─ data.js     상품 데이터 (상품을 바꾸려면 이 파일만 수정)
       ├─ common.js   헤더 메뉴·검색, 장바구니 저장, 상품 카드 그리기
@@ -57,6 +61,13 @@ Git이 어렵다면 Netlify의 드롭 기능(app.netlify.com/drop)에 이 폴더
 
 카테고리마다 붙는 라틴어 동물 이름(아우터 Lupus·늑대, 데님 Apis·벌, 셔츠 Mustela·족제비, 스웨트 Leo·사자, 티셔츠 Felis·고양이, 액세서리 Hirundo·제비)은
 같은 파일의 `CATEGORIES`에서 바꿀 수 있어요. 상품 행택과 상세 페이지에 표시되고, 검색어로도 찾을 수 있어요.
+
+## 로고 파일
+
+- 글자 로고(ANIMA PARS)와 별 심볼은 각 HTML 맨 위의 `<symbol>`에 들어 있어요. 색과 크기는 `style.css`의 로고 부분에서 바꿔요.
+- `assets/img/star-mark.svg`: 별 심볼만 따로 쓸 때 쓰는 파일
+- `assets/img/emblem.svg`: 모든 페이지 맨 아래에 들어가는 엠블럼
+- `brand/`: 옷에 마킹할 '별 달린 A'. 밝은 원단·어두운 원단용 2색·1색 4가지예요. 인쇄·자수 업체에는 SVG를 주세요.
 
 ## 공개하기 전에 확인할 것
 

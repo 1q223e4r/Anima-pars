@@ -489,6 +489,13 @@ h1:focus {
   justify-content: center;
   min-height: 44px;
   padding: 4px 0;
+  --logo-h: 18px;            /* 휴대폰: 별 심볼이 붙어도 메뉴·검색·장바구니 버튼과 겹치지 않는 크기 */
+}
+
+@media (min-width: 480px) {
+  .brand-logo {
+    --logo-h: clamp(22px, 2.1vw, 30px);
+  }
 }
 
 /* 로고: 글자는 에스프레소, 별은 황토색 (로고 SVG가 --logo-star 값을 읽음) */
@@ -508,6 +515,27 @@ h1:focus {
   width: auto;
   height: clamp(22px, 2.1vw, 30px);
   aspect-ratio: 372 / 48;
+}
+
+/* 로고 묶음: 2번 별 심볼 + 글자 로고 (헤더·푸터 공통, 크기는 --logo-h 하나로 조절) */
+.brand-logo,
+.footer-brand__logo {
+  --star-h: calc(var(--logo-h) * 1.28);
+  gap: calc(var(--logo-h) * 0.32);
+}
+
+.brand-logo .logo,
+.footer-brand__logo .logo {
+  height: var(--logo-h);
+}
+
+.brand-star {
+  flex: none;
+  width: auto;
+  height: var(--star-h);
+  aspect-ratio: 102.8 / 101;
+  /* 별 몸통의 중심(심볼 높이의 53%)을 글자의 세로 중심(글자 로고 상자의 64.6%)에 맞춤 */
+  transform: translateY(calc(var(--logo-h) * 0.146 - var(--star-h) * 0.03));
 }
 
 .cart-link {
@@ -619,15 +647,13 @@ h1:focus {
 
 .footer-brand__logo {
   display: inline-flex;
+  align-items: center;
+  --logo-h: 24px;
 }
 
 .footer-brand__logo:hover {
   color: var(--espresso);
   opacity: 0.75;
-}
-
-.footer-brand__logo .logo {
-  height: 24px;
 }
 
 .footer-motto {
@@ -660,15 +686,29 @@ h1:focus {
   text-decoration: none;
 }
 
+/* 페이지 맨 아래: 1번 엠블럼을 도장처럼 가운데 두고, 그 아래 저작권 문구 */
 .site-footer__bottom {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 8px 24px;
-  padding-block: 20px 28px;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding-block: 40px 32px;
   border-top: 1px solid var(--line);
   font-size: 12px;
   color: var(--muted);
+  text-align: center;
+}
+
+.footer-emblem {
+  width: clamp(136px, 12vw, 168px);
+  height: auto;
+}
+
+.site-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 16px;
 }
 
 /* 6. 상품 카드 -------------------------------------------------------------- */

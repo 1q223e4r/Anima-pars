@@ -42,8 +42,9 @@
     const key = esc(AP.makeLineKey(item.productId, item.colorId, item.size));
     const name = esc(product.name);
     const url = AP.productUrl(product.id);
+    const backdrop = product.backdrop ? ` style="--card-backdrop: ${esc(product.backdrop)}"` : '';
     return `<li class="cart-item" data-line="${key}">`
-      + `<a class="cart-item__media" href="${url}" tabindex="-1" aria-hidden="true">${AP.garmentSvg(product, color, { strokeWidth: 1.4 })}</a>`
+      + `<a class="cart-item__media" href="${url}" tabindex="-1" aria-hidden="true"${backdrop}>${AP.garmentSvg(product, color, { strokeWidth: 1.4 })}</a>`
       + '<div class="cart-item__body">'
       + `<div class="cart-item__top"><a class="cart-item__name" href="${url}">${name}</a>`
       + `<span class="cart-item__total">${AP.formatPrice(product.price * item.qty)}</span></div>`

@@ -23,6 +23,7 @@
 
   // id로 상품을 바로 찾기 위한 Map — 매번 배열 전체를 훑지 않도록(O(1) 조회)
   const productById = new Map(DATA.PRODUCTS.map((product) => [product.id, product]));
+  const categoryBySlug = new Map(DATA.CATEGORIES.map((category) => [category.slug, category]));
 
   /* ---------- 작은 도우미 ---------- */
 
@@ -44,6 +45,12 @@
   // 없는 색상 id가 들어오면 첫 번째 색상으로 대체
   function getColor(product, colorId) {
     return product.colors.find((color) => color.id === colorId) || product.colors[0];
+  }
+
+  // 상품이 속한 카테고리의 라틴어 동물 이름 (없으면 null)
+  function getAnimal(product) {
+    const category = categoryBySlug.get(product.category);
+    return category && category.animal ? category.animal : null;
   }
 
   function hexToRgb(hex) {
@@ -287,14 +294,21 @@
 
   /* ---------- 상품 카드 ---------- */
 
+  // 행택(라틴어 동물 이름)·배지·일러스트를 담은 상품 카드
   function productCardHtml(product) {
+    const animal = getAnimal(product);
+    const tag = animal
+      ? `<span class="hang-tag"><span class="hang-tag__paper" lang="la">${escapeHtml(animal.latin)}</span></span>`
+      : '';
     const badge = product.badge
       ? `<span class="product-card__badge" lang="en">${escapeHtml(product.badge)}</span>`
       : '';
+    // 상품마다 다른 배경색은 CSS 변수로 넘김 (행택 구멍 색도 같이 맞춰짐)
+    const backdrop = product.backdrop ? ` style="--card-backdrop: ${escapeHtml(product.backdrop)}"` : '';
     return '<li>'
       + `<a class="product-card" href="${productUrl(product.id)}">`
-      + `<div class="product-card__media">${garmentSvg(product, product.colors[0])}</div>`
-      + `<div class="product-card__body">${badge}`
+      + `<div class="product-card__media"${backdrop}>${tag}${badge}${garmentSvg(product, product.colors[0])}</div>`
+      + '<div class="product-card__body">'
       + `<span class="product-card__name">${escapeHtml(product.name)}</span>`
       + `<span class="product-card__price">${formatPrice(product.price)}</span>`
       + '</div></a></li>';
@@ -406,6 +420,7 @@
     formatPrice,
     productUrl,
     getColor,
+    getAnimal,
     mixColor,
     isLightColor,
     garmentSvg,

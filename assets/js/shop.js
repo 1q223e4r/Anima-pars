@@ -32,15 +32,21 @@
   }
 
   // 상품마다 검색용 문자열을 미리 만들어 두어, 검색할 때마다 다시 만들지 않음
-  const searchTextById = new Map(PRODUCTS.map((product) => [
-    product.id,
-    normalize([
-      product.name,
-      product.nameEn,
-      categoryLabelBySlug.get(product.category) || '',
-      ...product.colors.map((color) => color.name)
-    ].join(' '))
-  ]));
+  // 상품마다 검색용 데이터를 미리 만들어 둠
+  // - text: 이름·카테고리·색상은 일부만 맞아도 검색됨
+  // - animalWords: 라틴어 동물 이름(lupus, 늑대 등)은 통째로 맞을 때만 — '제비'로 '족제비'가 걸리지 않게
+  const searchIndex = new Map(PRODUCTS.map((product) => {
+    const animal = AP.getAnimal(product);
+    return [product.id, {
+      text: normalize([
+        product.name,
+        product.nameEn,
+        categoryLabelBySlug.get(product.category) || '',
+        ...product.colors.map((color) => color.name)
+      ].join(' ')),
+      animalWords: animal ? [normalize(animal.latin), normalize(animal.meaning)] : []
+    }];
+  }));
 
   // 주소의 값은 누구나 바꿀 수 있으므로 허용된 값만 받음
   function readStateFromUrl() {
@@ -71,7 +77,9 @@
     const keyword = normalize(state.query);
     const matches = PRODUCTS.filter((product) => {
       if (state.category !== 'all' && product.category !== state.category) return false;
-      return !keyword || searchTextById.get(product.id).includes(keyword);
+      if (!keyword) return true;
+      const entry = searchIndex.get(product.id);
+      return entry.text.includes(keyword) || entry.animalWords.includes(keyword);
     });
     // 원본 배열은 그대로 두고 복사본만 정렬
     return matches.slice().sort((a, b) => {
@@ -94,7 +102,12 @@
     });
     sortSelect.value = state.sort;
 
-    if (summary) summary.textContent = `${categoryLabelBySlug.get(state.category)} · ${visible.length}개 상품`;
+    if (summary) {
+      // 카테고리를 고르면 그 라인의 동물 이름도 함께 보여 줌 (예: 아우터 · Lupus(늑대) · 2개 상품)
+      const category = CATEGORIES.find((item) => item.slug === state.category);
+      const animalText = category && category.animal ? ` · ${category.animal.latin}(${category.animal.meaning})` : '';
+      summary.textContent = `${category ? category.label : '전체'}${animalText} · ${visible.length}개 상품`;
+    }
     if (searchStatus && searchTerm) {
       searchStatus.hidden = !state.query;
       searchTerm.textContent = state.query; // 사용자가 입력한 값은 textContent로만 넣음

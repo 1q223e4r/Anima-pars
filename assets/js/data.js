@@ -69,15 +69,18 @@
     }
   };
 
-  // 'all'은 필터용 가상 카테고리
+  /**
+   * 카테고리 — 'all'은 필터용 가상 카테고리
+   * animal: 카테고리마다 붙는 라틴어 동물 이름 (상품 행택·상세 페이지에 표시)
+   */
   const CATEGORIES = [
     { slug: 'all', label: '전체' },
-    { slug: 'outer', label: '아우터' },
-    { slug: 'denim', label: '데님' },
-    { slug: 'shirt', label: '셔츠' },
-    { slug: 'sweat', label: '스웨트' },
-    { slug: 'tee', label: '티셔츠' },
-    { slug: 'acc', label: '액세서리' }
+    { slug: 'outer', label: '아우터', animal: { latin: 'Lupus', meaning: '늑대' } },
+    { slug: 'denim', label: '데님', animal: { latin: 'Apis', meaning: '벌' } },
+    { slug: 'shirt', label: '셔츠', animal: { latin: 'Mustela', meaning: '족제비' } },
+    { slug: 'sweat', label: '스웨트', animal: { latin: 'Leo', meaning: '사자' } },
+    { slug: 'tee', label: '티셔츠', animal: { latin: 'Felis', meaning: '고양이' } },
+    { slug: 'acc', label: '액세서리', animal: { latin: 'Hirundo', meaning: '제비' } }
   ];
 
   const MEASURE_NOTE = '단위 cm · 재는 방법에 따라 1~2cm 차이가 있을 수 있어요.';
@@ -122,6 +125,7 @@
    * - addedOrder: 클수록 최근 입고 (신상품순 정렬에 사용)
    * - colors[].pattern: 무늬 원단이면 common.js의 SVG 패턴 id
    * - soldOut: 품절 사이즈
+   * - backdrop: 상품 그림 뒤에 깔리는 따뜻한 종이색
    */
   const PRODUCTS = [
     {
@@ -134,6 +138,7 @@
       addedOrder: 8,
       season: '2026 F/W',
       garment: 'chore',
+      backdrop: '#EADFCC',
       colors: [
         { id: 'brick', name: '브릭', hex: '#8E4B33', line: '#E2C4B4', stitch: '#D8B48A' },
         { id: 'olive', name: '올리브', hex: '#55593B', line: '#D1CFB0', stitch: '#D8B48A' },
@@ -163,6 +168,7 @@
       addedOrder: 6,
       season: '2026 F/W',
       garment: 'jeans',
+      backdrop: '#E5DCCB',
       colors: [
         { id: 'indigo', name: '인디고', hex: '#232D45', pattern: 'ap-twill', line: '#A9B4CB', stitch: '#C9A15A' }
       ],
@@ -190,6 +196,7 @@
       addedOrder: 5,
       season: '2026 F/W',
       garment: 'flannel',
+      backdrop: '#EAE1D0',
       colors: [
         { id: 'red-check', name: '레드 체크', hex: '#6E3A30', pattern: 'ap-plaid', line: '#EEE6DC', stitch: '#E2D6C4' }
       ],
@@ -217,6 +224,7 @@
       addedOrder: 4,
       season: '2026 F/W',
       garment: 'sweat',
+      backdrop: '#E8DDC9',
       colors: [
         { id: 'oatmeal', name: '오트밀', hex: '#C7C2B7', line: '#5E5A52', stitch: '#8B867B' }
       ],
@@ -244,6 +252,7 @@
       addedOrder: 7,
       season: '2026 F/W',
       garment: 'field',
+      backdrop: '#E6DCC5',
       colors: [
         { id: 'olive', name: '올리브', hex: '#55593B', line: '#D1CFB0', stitch: '#A4A27E' }
       ],
@@ -271,6 +280,7 @@
       addedOrder: 3,
       season: '2026 F/W',
       garment: 'henley',
+      backdrop: '#DCCFB8',
       colors: [
         { id: 'ecru', name: '에크루', hex: '#E6DFD1', pattern: 'ap-waffle', line: '#5E5A52', stitch: '#ADA085' }
       ],
@@ -298,6 +308,7 @@
       addedOrder: 2,
       season: '2026 F/W',
       garment: 'cap',
+      backdrop: '#E9DFCD',
       colors: [
         { id: 'navy', name: '네이비', hex: '#232D45', line: '#A9B4CB', stitch: '#C9A15A' }
       ],
@@ -325,6 +336,7 @@
       addedOrder: 1,
       season: '2026 F/W',
       garment: 'tote',
+      backdrop: '#E7DCC8',
       colors: [
         { id: 'natural', name: '내추럴', hex: '#D2C3A3', line: '#5E5A52', stitch: '#8C7E61' }
       ],

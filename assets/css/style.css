@@ -19,9 +19,22 @@
   --night-muted: #c9ccd4;
   --error: #a3352a;
 
+  /* 따뜻한 톤: 상품 영역과 로고에 사용 */
+  --warm-paper: #f5eee3;
+  --warm-label: #f3ebdd;
+  --warm-line: #dccdb6;
+  --warm-muted: #6e5a4a;
+  --kraft: #c9ae84;
+  --espresso: #3b2a20;
+  --espresso-hover: #57402f;
+  --rust: #9a4a2c;
+  --ochre: #b07a2a;
+  --cream-text: #f6efe4;
+
   --font-display: "Cormorant Garamond", "Noto Serif KR", Georgia, serif;
   --font-serif: "Noto Serif KR", "Nanum Myeongjo", AppleMyungjo, serif;
   --font-sans: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-type: "Courier Prime", "Courier New", monospace;
 
   --page-max: 1440px;
   --gutter: clamp(20px, 5vw, 72px);
@@ -191,6 +204,14 @@ h1:focus {
   color: var(--night-muted);
 }
 
+/* 타자기 글꼴 라벨 (상품 번호·카탈로그 표기) */
+.eyebrow--type {
+  font-family: var(--font-type);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--warm-muted);
+}
+
 .display-title {
   font-family: var(--font-display);
   font-size: clamp(40px, 5vw, 72px);
@@ -273,6 +294,14 @@ h1:focus {
   padding: 0 24px;
   font-size: 12px;
   letter-spacing: 0.2em;
+}
+
+.button--warm {
+  background: var(--espresso);
+}
+
+.button--warm:hover {
+  background: var(--espresso-hover);
 }
 
 .link-line {
@@ -460,18 +489,25 @@ h1:focus {
   justify-content: center;
   min-height: 44px;
   padding: 4px 0;
-  color: var(--ink);
+}
+
+/* 로고: 글자는 에스프레소, 별은 황토색 (로고 SVG가 --logo-star 값을 읽음) */
+.brand-logo,
+.footer-brand__logo,
+.woven-label {
+  color: var(--espresso);
+  --logo-star: var(--ochre);
 }
 
 .brand-logo:hover {
-  color: var(--ink);
+  color: var(--espresso);
   opacity: 0.75;
 }
 
 .logo {
   width: auto;
   height: clamp(22px, 2.1vw, 30px);
-  aspect-ratio: 347 / 48;
+  aspect-ratio: 372 / 48;
 }
 
 .cart-link {
@@ -583,11 +619,10 @@ h1:focus {
 
 .footer-brand__logo {
   display: inline-flex;
-  color: var(--ink);
 }
 
 .footer-brand__logo:hover {
-  color: var(--ink);
+  color: var(--espresso);
   opacity: 0.75;
 }
 
@@ -655,13 +690,17 @@ h1:focus {
   color: inherit;
 }
 
+/* 상품 그림 자리: 상품마다 다른 따뜻한 종이색 + 은은한 점 질감 */
 .product-card__media {
+  position: relative;
   aspect-ratio: 3 / 4;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: var(--tile);
+  background-color: var(--card-backdrop, var(--tile));
+  background-image: radial-gradient(rgba(59, 42, 32, 0.07) 0.8px, transparent 1.2px);
+  background-size: 5px 5px;
 }
 
 .product-card__media .garment {
@@ -675,6 +714,77 @@ h1:focus {
   transform: scale(1.04);
 }
 
+/* 실에 매달린 크라프트 행택 — 라틴어 동물 이름 */
+.hang-tag {
+  position: absolute;
+  top: 18px;
+  left: 16px;
+  z-index: 1;
+  transform: rotate(-6deg);
+  transform-origin: 12px 50%;
+  transition: transform 0.5s ease;
+}
+
+/* 태그를 매단 실 */
+.hang-tag::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  bottom: 50%;
+  width: 1px;
+  height: 44px;
+  background: rgba(59, 42, 32, 0.45);
+  transform: rotate(16deg);
+  transform-origin: bottom center;
+}
+
+.hang-tag__paper {
+  position: relative;
+  display: block;
+  padding: 5px 11px 5px 22px;
+  background: var(--kraft);
+  color: var(--espresso);
+  font-family: var(--font-type);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+}
+
+/* 실을 꿴 구멍 — 뒤 배경색과 같은 색으로 뚫린 것처럼 */
+.hang-tag__paper::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 9px;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: var(--card-backdrop, var(--tile));
+  box-shadow: inset 0 0 0 1px rgba(59, 42, 32, 0.35);
+}
+
+.product-card:hover .hang-tag,
+.product-card:focus-visible .hang-tag {
+  transform: rotate(-1deg);
+}
+
+.product-card__badge {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  z-index: 1;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--rust);
+  color: var(--cream-text);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+
 .product-card__body {
   display: flex;
   flex-direction: column;
@@ -682,21 +792,15 @@ h1:focus {
   padding-inline: 2px;
 }
 
-.product-card__badge {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-}
-
 .product-card__name {
-  font-size: 14px;
+  font-family: var(--font-serif);
+  font-size: 15px;
   line-height: 1.5;
 }
 
 .product-card__price {
   font-size: 13px;
-  color: var(--ink-soft);
+  color: var(--warm-muted);
 }
 
 /* 7. 홈 -------------------------------------------------------------------- */
@@ -1075,7 +1179,8 @@ h1:focus {
 }
 
 .filter-bar {
-  border-block: 1px solid var(--line);
+  background: var(--warm-paper);
+  border-block: 1px solid var(--warm-line);
 }
 
 .filter-bar__inner {
@@ -1083,37 +1188,39 @@ h1:focus {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 4px 24px;
-  padding-block: 4px;
+  gap: 12px 24px;
+  padding-block: 14px;
 }
 
 .chip-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 2px;
-  margin-inline: -10px;
+  gap: 8px;
 }
 
+/* 단추처럼 둥근 카테고리 칩 */
 .chip {
   min-height: 44px;
-  padding: 0 10px;
-  border: 0;
-  background: none;
-  color: var(--muted);
+  padding: 0 clamp(12px, 1.4vw, 18px);
+  border: 1px solid var(--warm-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--warm-muted);
   font-size: 13px;
-  letter-spacing: 0.04em;
-  text-underline-offset: 8px;
-  text-decoration-thickness: 1px;
+  letter-spacing: 0.02em;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .chip:hover {
-  color: var(--ink);
+  border-color: var(--espresso);
+  color: var(--espresso);
 }
 
 .chip[aria-pressed="true"] {
-  color: var(--ink);
+  border-color: var(--espresso);
+  background: var(--espresso);
+  color: var(--cream-text);
   font-weight: 500;
-  text-decoration: underline;
 }
 
 .sort-control {
@@ -1126,7 +1233,7 @@ h1:focus {
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.2em;
-  color: var(--muted);
+  color: var(--warm-muted);
 }
 
 .select-wrap {
@@ -1202,7 +1309,9 @@ h1:focus {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: var(--tile);
+  background-color: var(--card-backdrop, var(--tile));
+  background-image: radial-gradient(rgba(59, 42, 32, 0.07) 0.8px, transparent 1.2px);
+  background-size: 5px 5px;
 }
 
 .product__figure--main {
@@ -1221,6 +1330,29 @@ h1:focus {
   height: auto;
 }
 
+/* 큰 그림에 다는 행택 */
+.hang-tag--large {
+  top: 28px;
+  left: 28px;
+}
+
+.hang-tag--large::before {
+  left: 14px;
+  height: 64px;
+}
+
+.hang-tag--large .hang-tag__paper {
+  padding: 8px 16px 8px 28px;
+  font-size: 14px;
+}
+
+.hang-tag--large .hang-tag__paper::before {
+  left: 11px;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+}
+
 .product__figure-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1234,17 +1366,18 @@ h1:focus {
 /* 라벨 안 글자가 칸 너비에 맞춰 줄어들도록 컨테이너 기준 단위(cqw) 사용 */
 .product__figure--label {
   container-type: inline-size;
-  background: #e7e4de;
+  background: #e3d6c2;
 }
 
 .product__figure figcaption {
   position: absolute;
   left: 20px;
   bottom: 16px;
+  font-family: var(--font-type);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--warm-muted);
 }
 
 .product__figure .fabric-caption {
@@ -1274,9 +1407,10 @@ h1:focus {
   justify-content: center;
   gap: 8px;
   padding: 12px;
-  border: 1px solid #232d45;
-  background: var(--paper);
-  color: #232d45;
+  border: 1px solid var(--espresso);
+  outline: 1px dashed rgba(59, 42, 32, 0.4);
+  outline-offset: -7px;
+  background: var(--warm-label);
 }
 
 .woven-label .logo {
@@ -1305,6 +1439,27 @@ h1:focus {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* 라틴어 동물 이름 한 줄 (예: Lupus 라틴어로 ‘늑대’) */
+.product__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.product__line-latin {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-style: italic;
+  line-height: 1.1;
+  color: var(--rust);
+}
+
+.product__line-meaning {
+  font-size: 12px;
+  color: var(--warm-muted);
 }
 
 .product__title {
@@ -1388,7 +1543,7 @@ h1:focus {
 }
 
 .swatch input:checked + label {
-  border-color: var(--ink);
+  border-color: var(--espresso);
 }
 
 .swatch input:focus-visible + label,
@@ -1408,7 +1563,7 @@ h1:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--warm-line);
   font-size: 13px;
   letter-spacing: 0.06em;
   cursor: pointer;
@@ -1416,19 +1571,19 @@ h1:focus {
 }
 
 .size-option label:hover {
-  border-color: var(--ink);
+  border-color: var(--espresso);
 }
 
 .size-option input:checked + label {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--paper);
+  border-color: var(--espresso);
+  background: var(--espresso);
+  color: var(--cream-text);
 }
 
 .size-option input:disabled + label {
   border-style: dashed;
-  border-color: var(--line-strong);
-  color: var(--muted);
+  border-color: var(--warm-line);
+  color: var(--warm-muted);
   text-decoration: line-through;
   cursor: not-allowed;
 }
@@ -1464,7 +1619,7 @@ h1:focus {
   justify-content: space-between;
   gap: 0 16px;
   padding: 6px 6px 6px 16px;
-  background: var(--paper-alt);
+  background: var(--warm-paper);
   font-size: 13px;
 }
 
@@ -1479,11 +1634,11 @@ h1:focus {
 }
 
 .accordion {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--warm-line);
 }
 
 .accordion details {
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--warm-line);
 }
 
 .accordion summary {
@@ -1529,11 +1684,33 @@ h1:focus {
 }
 
 .spec-list dt {
-  color: var(--muted);
+  color: var(--warm-muted);
+}
+
+/* 옷 안쪽에 꿰매 단 케어 라벨처럼 */
+.care-label {
+  margin-bottom: 20px;
+  padding: 18px 20px;
+  background: var(--warm-label);
+  outline: 1px dashed rgba(59, 42, 32, 0.4);
+  outline-offset: -6px;
+}
+
+.care-label__title {
+  margin-bottom: 12px;
+  font-family: var(--font-type);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--warm-muted);
+}
+
+.care-label .spec-list {
+  padding-bottom: 0;
 }
 
 .product-extra {
-  background: var(--paper-alt);
+  background: var(--warm-paper);
 }
 
 .product-extra__inner {
@@ -1575,12 +1752,12 @@ h1:focus {
 .size-table th,
 .size-table td {
   padding: 14px 8px;
-  border-bottom: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--warm-line);
 }
 
 .size-table thead th {
   padding-block: 12px;
-  border-bottom-color: var(--ink);
+  border-bottom-color: var(--espresso);
   font-weight: 500;
 }
 
@@ -1589,8 +1766,10 @@ h1:focus {
 }
 
 .size-table thead th:first-child {
+  font-family: var(--font-type);
   font-size: 11px;
-  letter-spacing: 0.2em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
 }
 
 .size-table tbody th {
@@ -1624,17 +1803,22 @@ h1:focus {
   gap: 6px;
 }
 
+/* 색 위에 능직(사선 결) 질감을 겹쳐 실제 원단처럼 */
 .aging__swatch {
   display: block;
   aspect-ratio: 3 / 4;
   margin-bottom: 6px;
-  background: var(--tile);
+  background-color: var(--tile);
+  background-image:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 6px);
 }
 
 .aging__label {
+  font-family: var(--font-type);
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
 }
 
 .aging__note {
@@ -1692,7 +1876,7 @@ h1:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--tile);
+  background: var(--card-backdrop, var(--tile));
 }
 
 .cart-item__media .garment {

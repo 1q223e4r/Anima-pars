@@ -38,6 +38,11 @@
   const el = {
     crumb: document.querySelector('[data-crumb-name]'),
     meta: pick('[data-pd-meta]'),
+    line: pick('[data-pd-line]'),
+    lineLatin: pick('[data-pd-line-latin]'),
+    lineMeaning: pick('[data-pd-line-meaning]'),
+    tag: pick('[data-pd-tag]'),
+    tagText: pick('[data-pd-tag-text]'),
     name: pick('[data-pd-name]'),
     nameEn: pick('[data-pd-name-en]'),
     price: pick('[data-pd-price]'),
@@ -78,7 +83,19 @@
       description.setAttribute('content', `${product.name} · ${AP.formatPrice(product.price)} — ${product.description}`);
     }
     if (el.crumb) el.crumb.textContent = product.name;
+    // 그림 배경색과 행택 구멍 색을 상품에 맞춤
+    if (product.backdrop) root.style.setProperty('--card-backdrop', product.backdrop);
     el.meta.textContent = `${product.id} · ${product.season}`;
+
+    // 카테고리의 라틴어 동물 이름: 제목 위 한 줄 + 큰 그림의 행택 (없으면 둘 다 숨김)
+    const animal = AP.getAnimal(product);
+    if (el.line) el.line.hidden = !animal;
+    if (el.tag) el.tag.hidden = !animal;
+    if (animal) {
+      if (el.lineLatin) el.lineLatin.textContent = animal.latin;
+      if (el.lineMeaning) el.lineMeaning.textContent = `라틴어로 ‘${animal.meaning}’`;
+      if (el.tagText) el.tagText.textContent = animal.latin;
+    }
     el.name.textContent = product.name;
     el.nameEn.textContent = product.nameEn;
     el.price.textContent = AP.formatPrice(product.price);

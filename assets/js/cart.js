@@ -41,7 +41,7 @@
     const color = AP.getColor(product, item.colorId);
     const key = esc(AP.makeLineKey(item.productId, item.colorId, item.size));
     const name = esc(product.name);
-    const url = AP.productUrl(product.id);
+    const url = esc(AP.productUrl(product.id, color.id)); // 담은 색 그대로 상세 페이지가 열리게
     const backdrop = product.backdrop ? ` style="--card-backdrop: ${esc(product.backdrop)}"` : '';
     return `<li class="cart-item" data-line="${key}">`
       + `<a class="cart-item__media" href="${url}" tabindex="-1" aria-hidden="true"${backdrop}>${AP.garmentSvg(product, color, { strokeWidth: 1.4 })}</a>`

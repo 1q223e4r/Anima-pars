@@ -19,7 +19,8 @@
   const missingSection = document.querySelector('[data-product-missing]');
   if (!root) return;
 
-  const productId = new URLSearchParams(window.location.search).get('id') || '';
+  const params = new URLSearchParams(window.location.search);
+  const productId = params.get('id') || '';
   const product = AP.productById.get(productId);
 
   // 없는 상품이면 안내 화면만 보여 주고, 검색엔진에도 올라가지 않게 함
@@ -68,8 +69,10 @@
   };
 
   const buyableSizes = product.sizes.filter((size) => !product.soldOut.includes(size));
+  // 컬렉션 카드에서 색을 바꿔 들어오면 주소의 color로 그 색을 먼저 보여 줌 (없는 색이면 첫 번째 색)
+  const requestedColor = params.get('color');
   const state = {
-    colorId: product.colors[0].id,
+    colorId: product.colors.some((color) => color.id === requestedColor) ? requestedColor : product.colors[0].id,
     // 고를 수 있는 사이즈가 FREE 하나뿐이면 미리 선택해 둠
     size: product.sizes.length === 1 && buyableSizes.length === 1 ? buyableSizes[0] : ''
   };
@@ -198,6 +201,12 @@
     state.colorId = event.target.value;
     hideMessages();
     renderColorViews();
+    // 고른 색을 주소에도 반영해, 링크를 공유하면 같은 색으로 열리게
+    try {
+      window.history.replaceState(null, '', AP.productUrl(product.id, state.colorId));
+    } catch (error) {
+      // 파일로 직접 연 경우 등 실패해도 화면 동작에는 영향 없음
+    }
   });
 
   el.sizes.addEventListener('change', (event) => {

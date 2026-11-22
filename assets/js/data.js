@@ -20,6 +20,7 @@
    * 옷 일러스트 모양 (200×240 좌표계)
    * outline: 실루엣 / detail: 솔기·주머니 선 / stitch: 점선 스티치
    * mark(있는 옷만): 별 달린 A 자수 자리 — 가운데 x·y, 높이 size, 패치 위에 놓을 때는 patch(x·y·width·height)
+   * back: 뒷면 모양 — outline을 빼면 앞면 실루엣을 그대로 씀 (컬렉션 카드에 마우스를 올리면 보임)
    */
   const GARMENTS = {
     chore: {
@@ -27,50 +28,91 @@
       detail: 'M84 30 L90 56 L100 42 L110 56 L116 30 M100 42 L100 206 M68 138 L92 138 L92 176 L68 176 Z M108 138 L132 138 L132 176 L108 176 Z M110 76 L130 76 L130 100 L110 100 Z M33 147 L52 152 M167 147 L148 152 '
         + circlePaths([[100, 66], [100, 96], [100, 126], [100, 156], [100, 186]], 2.4),
       stitch: 'M70 142 L90 142 M110 142 L130 142 M112 80 L128 80 M61 200 L139 200',
-      mark: { x: 120, y: 90, size: 12 }               // 왼쪽 가슴 주머니
+      mark: { x: 120, y: 90, size: 12 },              // 왼쪽 가슴 주머니
+      back: {                                          // 뒷목에 누운 깃 + 어깨 요크
+        outline: 'M84 30 L56 40 L30 160 L50 166 L62 84 L60 206 L140 206 L138 84 L150 166 L170 160 L144 40 L116 30 Q100 34 84 30 Z',
+        detail: 'M84 30 Q100 34 116 30 L114 39 Q100 43 86 39 Z M54 52 Q100 58 146 52 M33 147 L52 152 M167 147 L148 152',
+        stitch: 'M55 56 Q100 62 145 56 M61 200 L139 200'
+      }
     },
     jeans: {
       outline: 'M58 20 L142 20 L146 70 L138 228 L106 228 L100 100 L94 228 L62 228 L54 70 Z',
       detail: 'M57 32 L143 32 M68 18 L68 35 M132 18 L132 35 M57 46 Q74 50 80 32 M143 46 Q126 50 120 32 M126 34 L136 34 L137 42 L127 43 Z M100 32 L100 86 M62 214 L94 214 M106 214 L138 214 '
         + circlePath(100, 26, 2.5),
-      stitch: 'M108 33 L108 72 Q108 84 100 88 M58 51 Q77 55 84 33 M142 51 Q123 55 116 33 M62 222 L94 222 M106 222 L138 222'
+      stitch: 'M108 33 L108 72 Q108 84 100 88 M58 51 Q77 55 84 33 M142 51 Q123 55 116 33 M62 222 L94 222 M106 222 L138 222',
+      back: {                                          // V자 요크 + 뒷주머니 2개 + 허리 가죽 패치
+        outline: 'M58 20 L100 17 L142 20 L146 70 L138 228 L106 228 L100 100 L94 228 L62 228 L54 70 Z',
+        detail: 'M57 32 L143 32 M68 18 L68 35 M132 18 L132 35 M100 17 L100 34 M56 46 L100 58 L144 46 M100 58 L100 100 '
+          + 'M65 66 L91 66 L91 92 L78 98 L65 92 Z M109 66 L135 66 L135 92 L122 98 L109 92 Z M110 22 L128 22 L128 30 L110 30 Z M62 214 L94 214 M106 214 L138 214',
+        stitch: 'M57 50 L100 62 L143 50 M67 71 L89 71 M111 71 L133 71 M62 222 L94 222 M106 222 L138 222'
+      }
     },
     flannel: {
       outline: 'M86 28 L58 38 L34 150 L52 156 L64 80 L62 196 Q100 222 138 196 L136 80 L148 156 L166 150 L142 38 L114 28 Q100 36 86 28 Z',
       detail: 'M86 28 L92 50 L100 38 L108 50 L114 28 M96 40 L96 208 M104 40 L104 208 M68 70 L90 70 L90 78 L79 83 L68 78 Z M68 78 L68 102 L90 102 L90 78 M110 70 L132 70 L132 78 L121 83 L110 78 Z M110 78 L110 102 L132 102 L132 78 M37 138 L54 143 M163 138 L146 143 '
         + circlePaths([[100, 54], [100, 80], [100, 106], [100, 132], [100, 158], [100, 184]], 2.2),
-      stitch: 'M70 74 L88 74 M112 74 L130 74 M66 190 Q100 213 134 190'
+      stitch: 'M70 74 L88 74 M112 74 L130 74 M66 190 Q100 213 134 190',
+      back: {                                          // 깃 + 요크 + 걸이 고리
+        outline: 'M86 28 L58 38 L34 150 L52 156 L64 80 L62 196 Q100 222 138 196 L136 80 L148 156 L166 150 L142 38 L114 28 Q100 31 86 28 Z',
+        detail: 'M86 28 Q100 31 114 28 L112 36 Q100 39 88 36 Z M56 50 Q100 55 144 50 M97 58 L97 64 Q100 67 103 64 L103 58 M37 138 L54 143 M163 138 L146 143',
+        stitch: 'M57 54 Q100 59 143 54 M66 190 Q100 213 134 190'
+      }
     },
     sweat: {
       outline: 'M84 30 Q100 42 116 30 L146 42 L172 156 L154 166 L138 92 L140 196 L60 196 L62 92 L46 166 L28 156 L54 42 Z',
       detail: 'M78 32 Q100 54 122 32 M93 46 L100 60 L107 46 M80 34 L62 92 M120 34 L138 92 M31 143 L49 152 M169 143 L151 152 M60 180 L140 180',
-      stitch: 'M85 36 L67 92 M115 36 L133 92 M61 187 L139 187'
+      stitch: 'M85 36 L67 92 M115 36 L133 92 M61 187 L139 187',
+      back: {                                          // 앞보다 높은 목둘레 립, V 거셋 없음
+        outline: 'M84 30 Q100 36 116 30 L146 42 L172 156 L154 166 L138 92 L140 196 L60 196 L62 92 L46 166 L28 156 L54 42 Z',
+        detail: 'M79 31 Q100 44 121 31 M80 34 L62 92 M120 34 L138 92 M31 143 L49 152 M169 143 L151 152 M60 180 L140 180',
+        stitch: 'M85 36 L67 92 M115 36 L133 92 M61 187 L139 187'
+      }
     },
     field: {
       outline: 'M84 26 L84 14 Q100 10 116 14 L116 26 L144 38 L170 162 L150 168 L138 84 L140 210 L60 210 L62 84 L50 168 L30 162 L56 38 Z',
       detail: 'M84 26 Q100 31 116 26 M100 14 L100 210 M66 62 L92 62 L92 73 L66 73 Z M67 73 L67 100 L91 100 L91 73 M108 62 L134 62 L134 73 L108 73 Z M109 73 L109 100 L133 100 L133 73 M64 134 L94 134 L94 147 L64 147 Z M65 147 L65 186 L93 186 L93 147 M106 134 L136 134 L136 147 L106 147 Z M107 147 L107 186 L135 186 L135 147 M33 148 L52 154 M167 148 L148 154 '
         + circlePaths([[79, 68], [121, 68], [79, 141], [121, 141]], 1.8),
       stitch: 'M61 120 L139 120 M61 204 L139 204',
-      mark: { x: 121, y: 87, size: 12 }               // 왼쪽 가슴 주머니(덮개 아래)
+      mark: { x: 121, y: 87, size: 12 },              // 왼쪽 가슴 주머니(덮개 아래)
+      back: {                                          // 스탠드 칼라 + 어깨 요크 + 허리 조임 선
+        detail: 'M84 26 Q100 30 116 26 M54 48 Q100 54 146 48 M33 148 L52 154 M167 148 L148 154',
+        stitch: 'M55 52 Q100 58 145 52 M61 120 L139 120 M61 204 L139 204'
+      }
     },
     henley: {
       outline: 'M86 30 Q100 40 114 30 L142 40 L166 160 L150 166 L136 86 L138 204 L62 204 L64 86 L50 166 L34 160 L58 40 Z',
       detail: 'M82 31 Q100 46 118 31 M96 38 L96 82 L104 82 L104 38 M58 40 Q66 64 64 86 M142 40 Q134 64 136 86 M37 150 L51 155 M163 150 L149 155 '
         + circlePaths([[100, 50], [100, 62], [100, 74]], 2),
-      stitch: 'M63 197 L137 197'
+      stitch: 'M63 197 L137 197',
+      back: {                                          // 단추 여밈 없이 목둘레 립만
+        outline: 'M86 30 Q100 35 114 30 L142 40 L166 160 L150 166 L136 86 L138 204 L62 204 L64 86 L50 166 L34 160 L58 40 Z',
+        detail: 'M83 31 Q100 41 117 31 M58 40 Q66 64 64 86 M142 40 Q134 64 136 86 M37 150 L51 155 M163 150 L149 155',
+        stitch: 'M63 197 L137 197'
+      }
     },
     cap: {
       outline: 'M42 150 Q42 72 100 66 Q158 72 158 150 Q100 140 42 150 Z M28 152 Q100 140 172 152 Q168 178 100 182 Q32 178 28 152 Z',
       detail: 'M100 66 L100 145 M74 74 Q62 108 64 148 M126 74 Q138 108 136 148 M84 102 L116 102 L116 124 L84 124 Z '
         + circlePath(100, 65, 4.5) + ' ' + circlePaths([[80, 94], [120, 94]], 2),
       stitch: 'M36 160 Q100 150 164 160 M40 168 Q100 158 160 168 M46 175 Q100 166 154 175 M87 105 L113 105 L113 121 L87 121 Z',
-      mark: { x: 100, y: 113, size: 13, patch: { x: 84, y: 102, width: 32, height: 22 } }   // 앞판 패치
+      mark: { x: 100, y: 113, size: 13, patch: { x: 84, y: 102, width: 32, height: 22 } },   // 앞판 패치
+      back: {                                          // 챙은 앞쪽이라 안 보이고, 뒤 트임 + 조절 스트랩·버클
+        outline: 'M42 150 Q42 72 100 66 Q158 72 158 150 Q100 142 42 150 Z',
+        detail: 'M100 66 L100 124 M74 74 Q62 108 64 148 M126 74 Q138 108 136 148 M84 146 Q84 126 100 124 Q116 126 116 146 '
+          + 'M80 139 L120 139 M80 145 L120 145 M104 136 L112 136 L112 146 L104 146 Z '
+          + circlePath(100, 65, 4.5) + ' ' + circlePaths([[80, 94], [120, 94]], 2),
+        stitch: 'M46 145 Q100 135 154 145 M87 145 Q87 130 100 128 Q113 130 113 145'
+      }
     },
     tote: {
       outline: 'M44 96 L156 96 L150 216 L50 216 Z M66 96 Q66 34 100 34 Q134 34 134 96 L126 96 Q126 46 100 46 Q74 46 74 96 Z',
       detail: 'M45 108 L155 108 M70 140 L130 140 L130 196 L70 196 Z M89 156 L111 156 L111 170 L89 170 Z M49 204 L151 204',
       stitch: 'M66 100 L74 116 M74 100 L66 116 M126 100 L134 116 M134 100 L126 116 M70 146 L130 146 M45 102 L155 102',
-      mark: { x: 100, y: 124, size: 22 }              // 가방 앞면, 주머니 위
+      mark: { x: 100, y: 124, size: 22 },             // 가방 앞면, 주머니 위
+      back: {                                          // 주머니 없는 뒷면 + 작은 라벨
+        detail: 'M45 108 L155 108 M49 204 L151 204 M127 180 L143 180 L143 194 L127 194 Z',
+        stitch: 'M66 100 L74 116 M74 100 L66 116 M126 100 L134 116 M134 100 L126 116 M45 102 L155 102 M129 182 L141 182 L141 192 L129 192 Z'
+      }
     }
   };
 
@@ -87,6 +129,28 @@
     { slug: 'tee', label: '티셔츠', animal: { latin: 'Felis', meaning: '고양이' } },
     { slug: 'acc', label: '액세서리', animal: { latin: 'Hirundo', meaning: '제비' } }
   ];
+
+  /**
+   * 컬렉션 필터용 기준값
+   * - COLOR_FAMILIES: 색상 필터의 색 계열. 상품 색상의 family가 이 id를 가리킴
+   * - PRICE_RANGES: 가격대 구간 (min 이상, max 미만)
+   * - SIZE_ORDER: 사이즈 필터에 보여 줄 순서
+   */
+  const COLOR_FAMILIES = [
+    { id: 'red', label: '레드·브라운', swatch: '#8E4B33' },
+    { id: 'olive', label: '올리브', swatch: '#55593B' },
+    { id: 'navy', label: '네이비', swatch: '#232D45' },
+    { id: 'natural', label: '내추럴', swatch: '#D2C3A3' }
+  ];
+
+  const PRICE_RANGES = [
+    { id: 'under-5', label: '5만 원 미만', min: 0, max: 50000 },
+    { id: '5-10', label: '5만~10만 원', min: 50000, max: 100000 },
+    { id: '10-20', label: '10만~20만 원', min: 100000, max: 200000 },
+    { id: 'over-20', label: '20만 원 이상', min: 200000, max: Infinity }
+  ];
+
+  const SIZE_ORDER = ['S', 'M', 'L', 'XL', '28', '30', '32', '34', '36', 'FREE'];
 
   const MEASURE_NOTE = '단위 cm · 재는 방법에 따라 1~2cm 차이가 있을 수 있어요.';
 
@@ -145,9 +209,9 @@
       garment: 'chore',
       backdrop: '#EADFCC',
       colors: [
-        { id: 'brick', name: '브릭', hex: '#8E4B33', line: '#E2C4B4', stitch: '#D8B48A' },
-        { id: 'olive', name: '올리브', hex: '#55593B', line: '#D1CFB0', stitch: '#D8B48A' },
-        { id: 'indigo', name: '인디고', hex: '#232D45', line: '#A9B4CB', stitch: '#D8B48A' }
+        { id: 'brick', name: '브릭', family: 'red', hex: '#8E4B33', line: '#E2C4B4', stitch: '#D8B48A' },
+        { id: 'olive', name: '올리브', family: 'olive', hex: '#55593B', line: '#D1CFB0', stitch: '#D8B48A' },
+        { id: 'indigo', name: '인디고', family: 'navy', hex: '#232D45', line: '#A9B4CB', stitch: '#D8B48A' }
       ],
       sizes: ['S', 'M', 'L', 'XL'],
       soldOut: ['XL'],
@@ -175,7 +239,7 @@
       garment: 'jeans',
       backdrop: '#E5DCCB',
       colors: [
-        { id: 'indigo', name: '인디고', hex: '#232D45', pattern: 'ap-twill', line: '#A9B4CB', stitch: '#C9A15A' }
+        { id: 'indigo', name: '인디고', family: 'navy', hex: '#232D45', pattern: 'ap-twill', line: '#A9B4CB', stitch: '#C9A15A' }
       ],
       sizes: ['28', '30', '32', '34', '36'],
       soldOut: [],
@@ -203,7 +267,7 @@
       garment: 'flannel',
       backdrop: '#EAE1D0',
       colors: [
-        { id: 'red-check', name: '레드 체크', hex: '#6E3A30', pattern: 'ap-plaid', line: '#EEE6DC', stitch: '#E2D6C4' }
+        { id: 'red-check', name: '레드 체크', family: 'red', hex: '#6E3A30', pattern: 'ap-plaid', line: '#EEE6DC', stitch: '#E2D6C4' }
       ],
       sizes: ['S', 'M', 'L', 'XL'],
       soldOut: [],
@@ -231,7 +295,7 @@
       garment: 'sweat',
       backdrop: '#E8DDC9',
       colors: [
-        { id: 'oatmeal', name: '오트밀', hex: '#C7C2B7', line: '#5E5A52', stitch: '#8B867B' }
+        { id: 'oatmeal', name: '오트밀', family: 'natural', hex: '#C7C2B7', line: '#5E5A52', stitch: '#8B867B' }
       ],
       sizes: ['S', 'M', 'L', 'XL'],
       soldOut: [],
@@ -259,7 +323,7 @@
       garment: 'field',
       backdrop: '#E6DCC5',
       colors: [
-        { id: 'olive', name: '올리브', hex: '#55593B', line: '#D1CFB0', stitch: '#A4A27E' }
+        { id: 'olive', name: '올리브', family: 'olive', hex: '#55593B', line: '#D1CFB0', stitch: '#A4A27E' }
       ],
       sizes: ['S', 'M', 'L', 'XL'],
       soldOut: [],
@@ -287,7 +351,7 @@
       garment: 'henley',
       backdrop: '#DCCFB8',
       colors: [
-        { id: 'ecru', name: '에크루', hex: '#E6DFD1', pattern: 'ap-waffle', line: '#5E5A52', stitch: '#ADA085' }
+        { id: 'ecru', name: '에크루', family: 'natural', hex: '#E6DFD1', pattern: 'ap-waffle', line: '#5E5A52', stitch: '#ADA085' }
       ],
       sizes: ['S', 'M', 'L', 'XL'],
       soldOut: [],
@@ -315,7 +379,7 @@
       garment: 'cap',
       backdrop: '#E9DFCD',
       colors: [
-        { id: 'navy', name: '네이비', hex: '#232D45', line: '#A9B4CB', stitch: '#C9A15A' }
+        { id: 'navy', name: '네이비', family: 'navy', hex: '#232D45', line: '#A9B4CB', stitch: '#C9A15A' }
       ],
       sizes: ['FREE'],
       soldOut: [],
@@ -343,7 +407,7 @@
       garment: 'tote',
       backdrop: '#E7DCC8',
       colors: [
-        { id: 'natural', name: '내추럴', hex: '#D2C3A3', line: '#5E5A52', stitch: '#8C7E61' }
+        { id: 'natural', name: '내추럴', family: 'natural', hex: '#D2C3A3', line: '#5E5A52', stitch: '#8C7E61' }
       ],
       sizes: ['FREE'],
       soldOut: [],
@@ -361,5 +425,7 @@
     }
   ];
 
-  window.ANIMA_PARS_DATA = Object.freeze({ GARMENTS, CATEGORIES, SIZE_CHARTS, PRODUCTS });
+  window.ANIMA_PARS_DATA = Object.freeze({
+    GARMENTS, CATEGORIES, SIZE_CHARTS, PRODUCTS, COLOR_FAMILIES, PRICE_RANGES, SIZE_ORDER
+  });
 })();

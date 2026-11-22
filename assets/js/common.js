@@ -38,8 +38,12 @@
     return '₩' + Math.round(Number(amount) || 0).toLocaleString('ko-KR');
   }
 
-  function productUrl(productId) {
-    return 'product.html?id=' + encodeURIComponent(productId);
+  // 첫 번째(기본) 색이 아닌 색을 고른 경우 주소에 색상도 담아, 상세 페이지가 그 색으로 열리게 함
+  function productUrl(productId, colorId) {
+    const url = 'product.html?id=' + encodeURIComponent(productId);
+    const product = productById.get(productId);
+    if (!product || !colorId || colorId === product.colors[0].id) return url;
+    return product.colors.some((color) => color.id === colorId) ? url + '&color=' + encodeURIComponent(colorId) : url;
   }
 
   // 없는 색상 id가 들어오면 첫 번째 색상으로 대체
@@ -210,6 +214,52 @@
     };
   }
 
+  /* ---------- 찜 목록 (이 브라우저에만 저장) ---------- */
+
+  const WISH_STORAGE_KEY = 'anima-pars:wish:v1';
+  const MAX_WISH_ITEMS = 50;
+
+  // 저장된 찜 목록도 깨지거나 조작될 수 있으므로 실제 상품 id만, 중복 없이 남김
+  function sanitizeWish(rawIds) {
+    if (!Array.isArray(rawIds)) return [];
+    const ids = [];
+    for (const id of rawIds) {
+      if (ids.length >= MAX_WISH_ITEMS) break;
+      if (typeof id === 'string' && productById.has(id) && !ids.includes(id)) ids.push(id);
+    }
+    return ids;
+  }
+
+  function readWish() {
+    const saved = safeStorage.get(WISH_STORAGE_KEY);
+    if (!saved) return [];
+    try {
+      return sanitizeWish(JSON.parse(saved));
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function writeWish(ids) {
+    const cleanIds = sanitizeWish(ids);
+    safeStorage.set(WISH_STORAGE_KEY, JSON.stringify(cleanIds));
+    document.dispatchEvent(new CustomEvent('wish:change', { detail: { ids: cleanIds } }));
+    return cleanIds;
+  }
+
+  // 찜했으면 빼고 안 했으면 넣은 뒤, 바뀐 찜 상태(true/false)를 돌려줌
+  function toggleWish(productId) {
+    if (!productById.has(productId)) return false;
+    const ids = readWish();
+    const index = ids.indexOf(productId);
+    if (index >= 0) {
+      ids.splice(index, 1);
+    } else {
+      ids.push(productId);
+    }
+    return writeWish(ids).includes(productId);
+  }
+
   /* ---------- 옷 일러스트(SVG) ---------- */
 
   // 무늬 원단(데님 능직·체크·와플)과 질감 표현용 패턴 — 페이지마다 한 번만 넣음
@@ -314,11 +364,18 @@
   /**
    * 상품 일러스트 SVG 문자열을 만듦
    * options: strokeWidth, outlineColor, outlineOpacity, label(있으면 스크린리더가 읽는 이미지),
-   *          mark(false면 별 달린 A 자수를 빼고 그림)
+   *          mark(false면 별 달린 A 자수를 빼고 그림),
+   *          view('back'이면 뒷면 — 그 옷에 뒷면 모양이 없으면 빈 문자열)
    */
   function garmentSvg(product, color, options = {}) {
-    const shape = DATA.GARMENTS[product.garment];
-    if (!shape || !color) return '';
+    const base = DATA.GARMENTS[product.garment];
+    if (!base || !color) return '';
+    const isBack = options.view === 'back';
+    if (isBack && !base.back) return '';
+    // 뒷면은 따로 정한 선만 쓰고, 실루엣을 안 정했으면 앞면 실루엣을 씀 (자수는 앞면에만)
+    const shape = isBack
+      ? { outline: base.back.outline || base.outline, detail: base.back.detail || '', stitch: base.back.stitch || '', mark: null }
+      : base;
     const strokeWidth = options.strokeWidth || 1.1;
     const outlineColor = options.outlineColor || '#141414';
     const outlineOpacity = options.outlineOpacity != null ? options.outlineOpacity : 0.45;
@@ -329,8 +386,8 @@
       : 'aria-hidden="true" focusable="false"';
     return `<svg class="garment" viewBox="0 0 200 240" ${a11y}>`
       + `<path d="${shape.outline}" fill="${fill}" stroke="${outlineColor}" stroke-opacity="${outlineOpacity}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>`
-      + `<path d="${shape.detail}" fill="none" stroke="${color.line}" stroke-width="${roundTo(strokeWidth * 0.9, 2)}" stroke-linejoin="round" stroke-linecap="round"/>`
-      + `<path d="${shape.stitch}" fill="none" stroke="${color.stitch}" stroke-width="${roundTo(strokeWidth * 0.7, 2)}" stroke-dasharray="2.4 2" stroke-linecap="round"/>`
+      + (shape.detail ? `<path d="${shape.detail}" fill="none" stroke="${color.line}" stroke-width="${roundTo(strokeWidth * 0.9, 2)}" stroke-linejoin="round" stroke-linecap="round"/>` : '')
+      + (shape.stitch ? `<path d="${shape.stitch}" fill="none" stroke="${color.stitch}" stroke-width="${roundTo(strokeWidth * 0.7, 2)}" stroke-dasharray="2.4 2" stroke-linecap="round"/>` : '')
       + (shape.mark && options.mark !== false ? starAMarkSvg(shape.mark, color.hex) : '')
       + '</svg>';
   }
@@ -351,11 +408,104 @@
     });
   }
 
+  /* ---------- 알림(토스트) ---------- */
+
+  const TOAST_DURATION = 4000;
+  let toastTimer = 0;
+
+  function scheduleToastHide() {
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      const region = document.querySelector('[data-toast-region]');
+      if (region) region.replaceChildren();
+    }, TOAST_DURATION);
+  }
+
+  // 화면 아래에 잠깐 뜨는 알림. 스크린리더도 읽고(role=status), 마우스를 올리거나 링크에 포커스가 있는 동안은 사라지지 않음
+  function showToast(message, link) {
+    let region = document.querySelector('[data-toast-region]');
+    if (!region) {
+      region = document.createElement('div');
+      region.className = 'toast-region';
+      region.setAttribute('data-toast-region', '');
+      region.setAttribute('role', 'status');
+      region.setAttribute('aria-live', 'polite');
+      region.addEventListener('mouseenter', () => window.clearTimeout(toastTimer));
+      region.addEventListener('focusin', () => window.clearTimeout(toastTimer));
+      region.addEventListener('mouseleave', scheduleToastHide);
+      region.addEventListener('focusout', scheduleToastHide);
+      document.body.appendChild(region);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    const text = document.createElement('span');
+    text.textContent = message; // 상품 이름 등은 textContent로만 넣음
+    toast.appendChild(text);
+    if (link) {
+      const anchor = document.createElement('a');
+      anchor.className = 'toast__link';
+      anchor.href = link.href;
+      anchor.textContent = link.label;
+      toast.appendChild(anchor);
+    }
+    region.replaceChildren(toast);
+    scheduleToastHide();
+  }
+
   /* ---------- 상품 카드 ---------- */
 
-  // 행택(라틴어 동물 이름)·배지·일러스트를 담은 상품 카드
-  function productCardHtml(product) {
+  const CARD_ICONS = {
+    heart: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 C9.2 18.2 3 13.8 3 8.9 C3 6.3 5 4.4 7.4 4.4 C9.3 4.4 10.9 5.5 12 7.2 C13.1 5.5 14.7 4.4 16.6 4.4 C19 4.4 21 6.3 21 8.9 C21 13.8 14.8 18.2 12 20.3 Z"/></svg>',
+    flip: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12 A8 8 0 0 1 18 6.7 M20 12 A8 8 0 0 1 6 17.3"/><path d="M18.5 3 L18.5 7 L14.5 7 M5.5 21 L5.5 17 L9.5 17"/></svg>',
+    bagPlus: '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 8.5 H19 L18 20.5 H6 Z"/><path d="M9 8.5 V7 A3 3 0 0 1 15 7 V8.5"/><path d="M12 11.5 V17 M9.25 14.25 H14.75"/></svg>',
+    close: '<svg class="icon icon--small" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>'
+  };
+
+  let cardSerial = 0; // 빠른 담기 창 id가 페이지 안에서 겹치지 않게
+
+  function hasBackView(product) {
+    const shape = DATA.GARMENTS[product.garment];
+    return Boolean(shape && shape.back);
+  }
+
+  function quickAddHtml(product, name) {
+    const buyable = product.sizes.filter((size) => !product.soldOut.includes(size));
+    if (buyable.length === 0) return { button: '', panel: '' };
+    // 사이즈가 하나(FREE)뿐이면 고를 것 없이 바로 담음
+    if (product.sizes.length === 1) {
+      return {
+        button: `<button class="card-action card-action--quick" type="button" aria-label="${name} 바로 담기" data-quick-direct="${escapeHtml(buyable[0])}">${CARD_ICONS.bagPlus}</button>`,
+        panel: ''
+      };
+    }
+    const panelId = `quick-add-${++cardSerial}`;
+    const sizes = product.sizes.map((size) => {
+      const soldOut = product.soldOut.includes(size);
+      return `<button class="quick-add__size" type="button" data-quick-size="${escapeHtml(size)}"`
+        + (soldOut ? ` disabled aria-label="${escapeHtml(size)} 품절"` : '')
+        + `>${escapeHtml(size)}</button>`;
+    }).join('');
+    return {
+      button: `<button class="card-action card-action--quick" type="button" aria-expanded="false" aria-controls="${panelId}" aria-label="${name} 빠른 담기" data-quick-toggle>${CARD_ICONS.bagPlus}</button>`,
+      panel: `<div class="quick-add__panel" id="${panelId}" hidden>`
+        + '<div class="quick-add__head"><span>사이즈를 고르면 바로 담겨요</span>'
+        + `<button class="quick-add__close" type="button" aria-label="빠른 담기 닫기" data-quick-close>${CARD_ICONS.close}</button></div>`
+        + `<div class="quick-add__sizes" role="group" aria-label="${name} 사이즈">${sizes}</div></div>`
+    };
+  }
+
+  /**
+   * 상품 카드 HTML
+   * options.colorId: 처음 보여 줄 색상(없거나 잘못되면 첫 번째 색) / options.wished: 찜 여부
+   * - 그림은 앞면 위에 뒷면을 겹쳐 두고, 마우스를 올리거나 뒤집기 버튼을 누르면 뒷면이 보임
+   * - 찜·뒤집기·빠른 담기·색상 버튼은 링크 밖에 둠 (링크 안에 버튼을 넣으면 안 됨)
+   */
+  function productCardHtml(product, options = {}) {
+    const color = getColor(product, options.colorId);
+    const name = escapeHtml(product.name);
+    const href = escapeHtml(productUrl(product.id, color.id));
     const animal = getAnimal(product);
+    const withBack = hasBackView(product);
     const tag = animal
       ? `<span class="hang-tag"><span class="hang-tag__paper" lang="la">${escapeHtml(animal.latin)}</span></span>`
       : '';
@@ -364,19 +514,192 @@
       : '';
     // 상품마다 다른 배경색은 CSS 변수로 넘김 (행택 구멍 색도 같이 맞춰짐)
     const backdrop = product.backdrop ? ` style="--card-backdrop: ${escapeHtml(product.backdrop)}"` : '';
-    return '<li>'
-      + `<a class="product-card" href="${productUrl(product.id)}">`
-      + `<div class="product-card__media"${backdrop}>${tag}${badge}${garmentSvg(product, product.colors[0])}</div>`
+    const wishButton = `<button class="wish-button" type="button" aria-pressed="${Boolean(options.wished)}" aria-label="${name} 찜하기" data-wish="${escapeHtml(product.id)}">${CARD_ICONS.heart}</button>`;
+    const flipButton = withBack
+      ? `<button class="card-action card-action--flip" type="button" aria-pressed="false" aria-label="${name} 뒷면 보기" data-card-flip>${CARD_ICONS.flip}</button>`
+      : '';
+    const quick = quickAddHtml(product, name);
+    const colorPicker = product.colors.length > 1
+      ? `<div class="swatches" role="group" aria-label="${name} 색상">`
+        + product.colors.map((item) => `<button class="swatch" type="button" aria-pressed="${item.id === color.id}" aria-label="${escapeHtml(item.name)}" title="${escapeHtml(item.name)}" data-card-color="${escapeHtml(item.id)}" style="--swatch: ${escapeHtml(item.hex)}"></button>`).join('')
+        + '</div>'
+      : `<span class="product-card__color">${escapeHtml(color.name)}</span>`;
+    const actions = flipButton || quick.button ? `<div class="product-card__actions">${flipButton}${quick.button}</div>` : '';
+
+    return `<li class="product-card" data-product-card data-product-id="${escapeHtml(product.id)}" data-color-id="${escapeHtml(color.id)}">`
+      + `<div class="product-card__media${withBack ? ' has-back' : ''}"${backdrop}>`
+      // 그림 링크는 마우스용(이름 링크와 같은 곳) — 키보드·스크린리더는 이름 링크 하나만 거치게 함
+      + `<a class="product-card__image-link" href="${href}" tabindex="-1" aria-hidden="true" data-card-link>`
+      + `<span class="product-card__art product-card__art--front" data-card-art="front">${garmentSvg(product, color)}</span>`
+      + (withBack ? `<span class="product-card__art product-card__art--back" data-card-art="back">${garmentSvg(product, color, { view: 'back' })}</span>` : '')
+      + '</a>'
+      + tag + wishButton + actions + quick.panel
+      + '</div>'
       + '<div class="product-card__body">'
-      + `<span class="product-card__name">${escapeHtml(product.name)}</span>`
+      + badge
+      + `<a class="product-card__name" href="${href}" data-card-link>${name}</a>`
       + `<span class="product-card__price">${formatPrice(product.price)}</span>`
-      + '</div></a></li>';
+      + colorPicker
+      + '</div></li>';
   }
 
   // 목록 전체를 문자열로 만든 뒤 한 번에 넣어 화면 갱신(리플로우)을 한 번으로 줄임
-  function renderProductList(listElement, products) {
+  // options.colorFor(product): 카드에 처음 보여 줄 색상 id (컬렉션 색상 필터와 맞출 때)
+  function renderProductList(listElement, products, options = {}) {
     if (!listElement) return;
-    listElement.innerHTML = products.map(productCardHtml).join('');
+    const wished = new Set(readWish());
+    listElement.innerHTML = products.map((product) => productCardHtml(product, {
+      colorId: options.colorFor ? options.colorFor(product) : null,
+      wished: wished.has(product.id)
+    })).join('');
+  }
+
+  /* ---------- 상품 카드 동작: 찜·뒤집기·색상·빠른 담기 (모든 카드를 문서 한 곳에서 처리) ---------- */
+
+  function setCardColor(card, colorId) {
+    const product = productById.get(card.dataset.productId);
+    if (!product) return;
+    const color = getColor(product, colorId);
+    card.dataset.colorId = color.id;
+    card.querySelectorAll('[data-card-art]').forEach((holder) => {
+      holder.innerHTML = garmentSvg(product, color, { view: holder.dataset.cardArt === 'back' ? 'back' : 'front' });
+    });
+    const href = productUrl(product.id, color.id);
+    card.querySelectorAll('[data-card-link]').forEach((link) => link.setAttribute('href', href));
+    card.querySelectorAll('[data-card-color]').forEach((swatch) => {
+      swatch.setAttribute('aria-pressed', String(swatch.dataset.cardColor === color.id));
+    });
+  }
+
+  function setQuickOpen(toggle, open) {
+    toggle.setAttribute('aria-expanded', String(open));
+    const panel = document.getElementById(toggle.getAttribute('aria-controls'));
+    if (panel) panel.hidden = !open;
+    const card = toggle.closest('[data-product-card]');
+    if (card) card.classList.toggle('is-quick-open', open);
+  }
+
+  function closeQuickPanels(except) {
+    document.querySelectorAll('[data-quick-toggle][aria-expanded="true"]').forEach((toggle) => {
+      if (toggle !== except) setQuickOpen(toggle, false);
+    });
+  }
+
+  // 카드에서 지금 고른 색상으로 장바구니에 담고 결과를 알림으로 보여 줌
+  function quickAddToCart(card, size) {
+    const product = productById.get(card.dataset.productId);
+    if (!product) return false;
+    const color = getColor(product, card.dataset.colorId);
+    const result = addToCart(product.id, color.id, size);
+    if (result.ok) {
+      const option = product.sizes.length > 1 ? `${color.name} / ${size}` : color.name;
+      showToast(`장바구니에 담았어요 · ${product.name} (${option})`, { href: 'cart.html', label: '장바구니 보기' });
+    } else if (result.reason === 'max') {
+      showToast(`같은 옵션은 ${MAX_QTY_PER_ITEM}개까지 담을 수 있어요`, { href: 'cart.html', label: '장바구니 보기' });
+    } else {
+      showToast('지금은 담을 수 없는 옵션이에요');
+    }
+    return result.ok;
+  }
+
+  function syncWishButtons() {
+    const wished = new Set(readWish());
+    document.querySelectorAll('[data-wish]').forEach((button) => {
+      button.setAttribute('aria-pressed', String(wished.has(button.dataset.wish)));
+    });
+  }
+
+  function handleCardClick(event) {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const wishButton = target.closest('[data-wish]');
+    if (wishButton) {
+      const product = productById.get(wishButton.dataset.wish);
+      if (!product) return;
+      const isWished = toggleWish(product.id); // 다른 카드의 같은 상품 하트는 wish:change로 함께 바뀜
+      showToast(
+        isWished ? `찜 목록에 담았어요 · ${product.name}` : `찜 목록에서 뺐어요 · ${product.name}`,
+        isWished ? { href: 'shop.html?wish=1', label: '찜 목록 보기' } : null
+      );
+      return;
+    }
+
+    const flipButton = target.closest('[data-card-flip]');
+    if (flipButton) {
+      const showBack = flipButton.getAttribute('aria-pressed') !== 'true';
+      flipButton.setAttribute('aria-pressed', String(showBack));
+      const media = flipButton.closest('.product-card__media');
+      if (media) media.classList.toggle('is-flipped', showBack);
+      return;
+    }
+
+    const swatch = target.closest('[data-card-color]');
+    if (swatch) {
+      const card = swatch.closest('[data-product-card]');
+      if (card) setCardColor(card, swatch.dataset.cardColor);
+      return;
+    }
+
+    const quickToggle = target.closest('[data-quick-toggle]');
+    if (quickToggle) {
+      const willOpen = quickToggle.getAttribute('aria-expanded') !== 'true';
+      closeQuickPanels(quickToggle);
+      setQuickOpen(quickToggle, willOpen);
+      if (willOpen) {
+        const panel = document.getElementById(quickToggle.getAttribute('aria-controls'));
+        const firstSize = panel ? panel.querySelector('[data-quick-size]:not(:disabled)') : null;
+        if (firstSize) firstSize.focus();
+      }
+      return;
+    }
+
+    const quickClose = target.closest('[data-quick-close]');
+    if (quickClose) {
+      const card = quickClose.closest('[data-product-card]');
+      const toggle = card ? card.querySelector('[data-quick-toggle]') : null;
+      if (toggle) {
+        setQuickOpen(toggle, false);
+        toggle.focus();
+      }
+      return;
+    }
+
+    const sizeButton = target.closest('[data-quick-size]');
+    if (sizeButton) {
+      const card = sizeButton.closest('[data-product-card]');
+      if (card && quickAddToCart(card, sizeButton.dataset.quickSize)) {
+        const toggle = card.querySelector('[data-quick-toggle]');
+        if (toggle) {
+          setQuickOpen(toggle, false);
+          toggle.focus();
+        }
+      }
+      return;
+    }
+
+    const directButton = target.closest('[data-quick-direct]');
+    if (directButton) {
+      const card = directButton.closest('[data-product-card]');
+      if (card) quickAddToCart(card, directButton.dataset.quickDirect);
+      return;
+    }
+
+    // 빠른 담기 창 바깥을 누르면 닫음
+    if (!target.closest('.quick-add__panel')) closeQuickPanels(null);
+  }
+
+  function initProductCards() {
+    document.addEventListener('click', handleCardClick);
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const openToggle = document.querySelector('[data-quick-toggle][aria-expanded="true"]');
+      if (openToggle) {
+        setQuickOpen(openToggle, false);
+        openToggle.focus();
+      }
+    });
+    document.addEventListener('wish:change', syncWishButtons);
   }
 
   /* ---------- 헤더: 메뉴·검색 패널 ---------- */
@@ -461,14 +784,18 @@
 
   injectSvgPatterns();
   initHeader();
+  initProductCards();
   hydrateIllustrations();
   updateCartBadges();
   document.addEventListener('cart:change', updateCartBadges);
 
-  // 다른 탭에서 장바구니가 바뀌면 이 탭도 맞춰서 갱신
+  // 다른 탭에서 장바구니나 찜 목록이 바뀌면 이 탭도 맞춰서 갱신
   window.addEventListener('storage', (event) => {
-    if (event.key !== CART_STORAGE_KEY) return;
-    document.dispatchEvent(new CustomEvent('cart:change', { detail: { items: readCart() } }));
+    if (event.key === CART_STORAGE_KEY) {
+      document.dispatchEvent(new CustomEvent('cart:change', { detail: { items: readCart() } }));
+    } else if (event.key === WISH_STORAGE_KEY) {
+      document.dispatchEvent(new CustomEvent('wish:change', { detail: { ids: readWish() } }));
+    }
   });
 
   // 페이지별 스크립트에서 쓰는 기능만 공개
@@ -483,7 +810,11 @@
     mixColor,
     isLightColor,
     garmentSvg,
+    hasBackView,
     renderProductList,
+    readWish,
+    toggleWish,
+    showToast,
     makeLineKey,
     readCart,
     addToCart,

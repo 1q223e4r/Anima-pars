@@ -104,15 +104,59 @@
     <div class="filter-bar">
       <div class="filter-bar__inner container">
         <div class="chip-group" role="group" aria-label="카테고리" data-category-chips></div>
-        <div class="sort-control">
-          <label for="sort-select">정렬</label>
-          <div class="select-wrap">
-            <select id="sort-select" data-sort>
-              <option value="new">신상품순</option>
-              <option value="low">낮은 가격순</option>
-              <option value="high">높은 가격순</option>
-            </select>
-            <svg class="icon icon--small" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9 L12 15 L18 9"/></svg>
+        <div class="filter-tools" data-filter-tools>
+          <div class="filter-menu" data-filter-menu="size">
+            <button class="filter-menu__toggle" type="button" aria-expanded="false" aria-controls="filter-panel-size" data-filter-toggle>
+              사이즈<span class="filter-menu__badge" data-filter-badge hidden></span>
+              <svg class="icon icon--small" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9 L12 15 L18 9"/></svg>
+            </button>
+            <div class="filter-menu__panel" id="filter-panel-size" hidden>
+              <fieldset class="filter-fieldset">
+                <legend class="filter-fieldset__legend">사이즈</legend>
+                <div class="filter-options" data-filter-options="size"></div>
+              </fieldset>
+              <p class="filter-menu__note">품절된 사이즈는 빼고 찾아요.</p>
+            </div>
+          </div>
+          <div class="filter-menu" data-filter-menu="color">
+            <button class="filter-menu__toggle" type="button" aria-expanded="false" aria-controls="filter-panel-color" data-filter-toggle>
+              색상<span class="filter-menu__badge" data-filter-badge hidden></span>
+              <svg class="icon icon--small" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9 L12 15 L18 9"/></svg>
+            </button>
+            <div class="filter-menu__panel" id="filter-panel-color" hidden>
+              <fieldset class="filter-fieldset">
+                <legend class="filter-fieldset__legend">색상</legend>
+                <div class="filter-options" data-filter-options="color"></div>
+              </fieldset>
+              <p class="filter-menu__note">고른 색이 있는 상품은 그 색으로 보여 줘요.</p>
+            </div>
+          </div>
+          <div class="filter-menu" data-filter-menu="price">
+            <button class="filter-menu__toggle" type="button" aria-expanded="false" aria-controls="filter-panel-price" data-filter-toggle>
+              가격<span class="filter-menu__badge" data-filter-badge hidden></span>
+              <svg class="icon icon--small" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9 L12 15 L18 9"/></svg>
+            </button>
+            <div class="filter-menu__panel" id="filter-panel-price" hidden>
+              <fieldset class="filter-fieldset">
+                <legend class="filter-fieldset__legend">가격</legend>
+                <div class="filter-options" data-filter-options="price"></div>
+              </fieldset>
+            </div>
+          </div>
+          <button class="chip chip--wish" type="button" aria-pressed="false" data-wish-filter>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 C9.2 18.2 3 13.8 3 8.9 C3 6.3 5 4.4 7.4 4.4 C9.3 4.4 10.9 5.5 12 7.2 C13.1 5.5 14.7 4.4 16.6 4.4 C19 4.4 21 6.3 21 8.9 C21 13.8 14.8 18.2 12 20.3 Z"/></svg>
+            찜한 상품<span class="chip__count" data-wish-count>0</span>
+          </button>
+          <div class="sort-control">
+            <label for="sort-select">정렬</label>
+            <div class="select-wrap">
+              <select id="sort-select" data-sort>
+                <option value="new">신상품순</option>
+                <option value="low">낮은 가격순</option>
+                <option value="high">높은 가격순</option>
+              </select>
+              <svg class="icon icon--small" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9 L12 15 L18 9"/></svg>
+            </div>
           </div>
         </div>
       </div>
@@ -123,8 +167,15 @@
         <p>‘<span data-search-term></span>’ 검색 결과</p>
         <button class="text-button" type="button" data-clear-search>검색어 지우기</button>
       </div>
+      <div class="active-filters" data-active-filters hidden>
+        <ul class="active-filters__list" aria-label="적용한 필터" data-active-list></ul>
+        <button class="text-button" type="button" data-clear-filters>필터 전체 해제</button>
+      </div>
       <ul class="product-grid" data-product-list="shop"></ul>
-      <p class="empty-message" data-empty hidden>조건에 맞는 상품이 없어요.</p>
+      <div class="empty-state" data-empty hidden>
+        <p class="empty-message" data-empty-text>조건에 맞는 상품이 없어요.</p>
+        <button class="button button--compact button--warm" type="button" data-empty-clear hidden>필터 전체 해제</button>
+      </div>
       <noscript><p class="noscript-message">상품 목록을 보려면 자바스크립트를 켜 주세요.</p></noscript>
     </section>
   </main>
